@@ -1,2 +1,2 @@
-# extensions-
+# extensions
 Extensions‌ of basic package
