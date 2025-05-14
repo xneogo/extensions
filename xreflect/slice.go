@@ -30,7 +30,7 @@ import (
 )
 
 var (
-	NotASlice = errors.New("not a slice")
+	errNotASlice = errors.New("not a slice")
 )
 
 // ToSliceInterface
@@ -41,7 +41,7 @@ func ToSliceInterface(ctx context.Context, arr interface{}) ([]interface{}, erro
 	}
 	v := reflect.ValueOf(arr)
 	if v.Kind() != reflect.Slice {
-		return nil, NotASlice
+		return nil, errNotASlice
 	}
 	l := v.Len()
 	ret := make([]interface{}, l)
