@@ -19,10 +19,11 @@
  @Description:  手机号相关处理函数
 */
 
-package xutils
+package xphone
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -147,67 +148,77 @@ func FormatPhoneForCall(ctx context.Context, fullPhone string, stateCrest string
 type PhoneRegExp struct {
 	AreaNumber string `json:"AreaNumber"`
 	RegexpAll  string `json:"regexp_all"`
-	Region     string `json:"region"`
+	RegionCN   string `json:"region_cn"`
 	RegionCode string `json:"region_code"`
 }
 
 // PhoneVerifyReq 手机号验证请求
 type PhoneVerifyReq struct {
-	Phone      string `json:"phone"`       // 手机号
-	RegionCode string `json:"region_code"` // 国家或地区缩写
+	Phone  string `json:"phone"`  // 手机号
+	Region string `json:"region"` // 国家或地区
 }
 
 // PhoneVerifyRes 手机号验证结果
 type PhoneVerifyRes struct {
-	Ok           bool   `json:"ok"`
 	RegularPhone string `json:"regular_phone"` // 规则化的手机号,如 86-18812341919,852-18812341919
 	AreaNumber   string `json:"area_number"`   // 区号
 	Region       string `json:"region"`        // 国家或地区
 	RegionCode   string `json:"region_code"`   // 国家或地区缩写
 }
 
+var (
+	InputEmpty      = errors.New("[xPhone] input empty. Phone not found")
+	CountryNotFound = errors.New("[xPhone] region not found")
+	InvalidPhone    = errors.New("[xPhone] invalid phone. can not match regex template")
+)
+
 /*
 RegexpPhoneVerify
  * @Description:手机号正则验证
  * 	  支持验证的国家和地区有:{中国大陆-CN,中国香港-HK,中国澳门-MO,中国台湾-TW,阿联酋-UAE,澳大利亚-AU,东帝汶-TL,菲律宾-PH,韩国-KR
  * 	  加拿大-CA,柬埔寨-KH,老挝-LA,马来西亚-MY,美国-US,缅甸-MM,日本-JP,泰国-TH,文莱-BN,西班牙-ES,新加坡-SG,新西兰-NZ,印度尼西亚-ID
- * 	  英国-UK,越南-VN},不支持的一律返回false。
+ * 	  英国-UK,越南-VN},不支持的一律返回 error。
  *    仅中国大陆手机号可不带区号。其余必须为+86-phone，0086-phone，86-phone这样的
  * @param req{Phone:手机号,RegionCode:国家或地区缩写,如"CN","HK"} 注:RegionCode为空则遍历所有Region匹配校验
- * @return PhoneVerifyRes{Ok:正确/错误,RegularPhone:规则化的手机号,AreaNumber:区号,Region:手机号所属国家或地区,RegionCode:国家或地区缩写}
+ * @return PhoneVerifyRes{RegularPhone:规则化的手机号,AreaNumber:区号,Region:手机号所属国家或地区,RegionCode:国家或地区缩写}
 */
-func RegexpPhoneVerify(req PhoneVerifyReq) PhoneVerifyRes {
-	var info PhoneVerifyRes
-	info.Ok = false
+func RegexpPhoneVerify(req *PhoneVerifyReq) (*PhoneVerifyRes, error) {
+	res := new(PhoneVerifyRes)
 	if req.Phone == "" {
-		return info
+		return nil, InputEmpty
 	}
-	if req.RegionCode != "" { // 按照国家缩写去匹配正则
-		phoneRegValue, ok := PhoneRegExpMap[req.RegionCode]
+
+	// 按照国家缩写去匹配正则
+	if req.Region != "" {
+		phoneRegValue, ok := PhoneRegExpMap[req.Region]
 		if !ok { // key(国家缩写)不存在
-			return info
+			return nil, CountryNotFound
 		}
-		info.AreaNumber = phoneRegValue.AreaNumber
-		info.Region = phoneRegValue.Region
-		info.RegionCode = phoneRegValue.RegionCode
-		info.Ok, _ = regexp.MatchString(phoneRegValue.RegexpAll, req.Phone)
-		if info.Ok {
-			info.RegularPhone = RegularPhone(req.Phone)
+		res.AreaNumber = phoneRegValue.AreaNumber
+		res.Region = phoneRegValue.RegionCN
+		res.RegionCode = phoneRegValue.RegionCode
+		ok, _ = regexp.MatchString(phoneRegValue.RegexpAll, req.Phone)
+		if !ok {
+			return nil, InvalidPhone
 		}
-		return info
+		res.RegularPhone = RegularPhone(req.Phone)
+		return res, nil
 	}
+
 	// 没填写国家缩写,遍历匹配支持国家的正则校验
 	for _, phoneRegValue := range PhoneRegExpMap {
-		info.Ok, _ = regexp.MatchString(phoneRegValue.RegexpAll, req.Phone)
-		if info.Ok {
-			info.AreaNumber = phoneRegValue.AreaNumber
-			info.Region = phoneRegValue.Region
-			info.RegionCode = phoneRegValue.RegionCode
-			info.RegularPhone = RegularPhone(req.Phone)
-			return info
+		ok, _ := regexp.MatchString(phoneRegValue.RegexpAll, req.Phone)
+		if !ok {
+			continue
 		}
+		res.AreaNumber = phoneRegValue.AreaNumber
+		res.Region = phoneRegValue.RegionCN
+		res.RegionCode = phoneRegValue.RegionCode
+		res.RegularPhone = RegularPhone(req.Phone)
+		return res, nil
 	}
-	return info
+
+	return nil, InvalidPhone
 }
 
 /*
