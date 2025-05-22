@@ -3,6 +3,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/xneogo/extensions)](https://goreportcard.com/report/github.com/xneogo/extensions)
 [![GoDoc](https://godoc.org/github.com/xneogo/extensions?status.svg)](https://godoc.org/github.com/xneogo/extensions)
 [![License](https://img.shields.io/github/license/xneogo/extensions)](LICENSE)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/xneogo/extensions)
 
 Extensions 是一个 Go 语言工具库集合，提供了一系列实用的扩展功能，帮助开发者更高效地进行 Go 开发。
 
