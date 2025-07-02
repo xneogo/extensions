@@ -14,9 +14,9 @@
  *　　 ┗━┓┓┏━━┳┓┏┛
  *　　   ┃┫┫  ┃┫┫
  *      ┗┻┛　 ┗┻┛
- @Time    : 2024/10/28 -- 13:50
+ @Time    : 2025/6/28 -- 13:50
  @Author  : 亓官竹 ❤️ MONEY
- @Copyright 2024 亓官竹
+ @Copyright 2025 亓官竹
  @Description: mail.go
 */
 
