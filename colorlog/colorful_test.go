@@ -50,7 +50,7 @@ func TestLog(t *testing.T) {
 
 	log.Println("================")
 
-	xLogger := NewLogger()
+	xLogger := New()
 	// xLogger.Color(Red)
 	xLogger.SetLevel(WarnLevel)
 
