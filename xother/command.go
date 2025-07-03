@@ -25,21 +25,21 @@ package xother
 import (
 	"context"
 	"fmt"
-	"github.com/xneogo/extensions/colorlog"
 	oexec "os/exec"
 	"strings"
 
 	"github.com/spf13/cast"
+	"github.com/xneogo/extensions/colorlog"
 )
 
-func exec(ctx context.Context, str string) ([]string, error) {
+func command(ctx context.Context, str string) ([]string, error) {
 	cmd := oexec.Command("sh", "-c", str)
 	output, err := cmd.Output()
 	if err != nil {
-		colorlog.Ctx(ctx).Error().Str("cmd", str).Bytes("output", output).Err(err).Send()
+		colorlog.Errorf(ctx, "cmd: %s, output: %s", str, output)
 		return nil, err
 	} else {
-		log.Ctx(ctx).Debug().Str("cmd", str).Bytes("output", output).Err(err).Send()
+		colorlog.Debugf(ctx, "cmd: %s, output: %s", str, output)
 	}
 	ss := strings.Split(string(output), "\n")
 	res := make([]string, 0, len(ss))
@@ -53,7 +53,7 @@ func Exec(ctx context.Context, host string, str string) ([]string, error) {
 	if host != "" {
 		str = fmt.Sprintf("ssh root@%s %s", host, str)
 	}
-	return exec(ctx, str)
+	return command(ctx, str)
 }
 
 func LS(ctx context.Context, host string, path string) ([][]string, error) {
@@ -62,7 +62,7 @@ func LS(ctx context.Context, host string, path string) ([][]string, error) {
 	if host != "" {
 		str = fmt.Sprintf("ssh root@%s %s", host, str)
 	}
-	ss, err := exec(ctx, str)
+	ss, err := command(ctx, str)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +88,7 @@ func RM(ctx context.Context, host string, path string) error {
 	if host != "" {
 		str = fmt.Sprintf("ssh root@%s %s", host, str)
 	}
-	_, err := exec(ctx, str)
+	_, err := command(ctx, str)
 	if err != nil {
 		return err
 	}
@@ -100,7 +100,7 @@ func MK(ctx context.Context, host string, path string) error {
 	if host != "" {
 		str = fmt.Sprintf("ssh root@%s %s", host, str)
 	}
-	_, err := exec(ctx, str)
+	_, err := command(ctx, str)
 	if err != nil {
 		return err
 	}
@@ -112,7 +112,7 @@ func MV(ctx context.Context, host string, oldPath, newPath string) error {
 	if host != "" {
 		str = fmt.Sprintf("ssh root@%s %s", host, str)
 	}
-	_, err := exec(ctx, str)
+	_, err := command(ctx, str)
 	if err != nil {
 		return err
 	}
@@ -124,7 +124,7 @@ func CP(ctx context.Context, host string, oldPath, newPath string) error {
 	if host != "" {
 		str = fmt.Sprintf("ssh root@%s %s", host, str)
 	}
-	_, err := exec(ctx, str)
+	_, err := command(ctx, str)
 	if err != nil {
 		return err
 	}
@@ -136,7 +136,7 @@ func Lines(ctx context.Context, host string, path string) int64 {
 	if host != "" {
 		str = fmt.Sprintf("ssh root@%s %s", host, str)
 	}
-	ss, err := exec(ctx, str)
+	ss, err := command(ctx, str)
 	if err != nil || len(ss) == 0 {
 		return 0
 	}
@@ -148,7 +148,7 @@ func PIDs(ctx context.Context, host string, keyWord string) []int64 {
 	if host != "" {
 		str = fmt.Sprintf("ssh root@%s %s", host, str)
 	}
-	ss, err := exec(ctx, str)
+	ss, err := command(ctx, str)
 	if err != nil || len(ss) == 0 {
 		return nil
 	}
@@ -167,7 +167,7 @@ func Kill(ctx context.Context, host string, keyWord string) error {
 	if host != "" {
 		str = fmt.Sprintf("ssh root@%s %s", host, str)
 	}
-	_, err := exec(ctx, str)
+	_, err := command(ctx, str)
 	if err != nil {
 		return err
 	}
@@ -176,7 +176,7 @@ func Kill(ctx context.Context, host string, keyWord string) error {
 
 func ScpFrom(ctx context.Context, host string, remotePath string, localPath string) error {
 	str := fmt.Sprintf("scp -r root@%s:%s %s", host, remotePath, localPath)
-	_, err := exec(ctx, str)
+	_, err := command(ctx, str)
 	if err != nil {
 		return err
 	}
@@ -185,7 +185,7 @@ func ScpFrom(ctx context.Context, host string, remotePath string, localPath stri
 
 func ScpTo(ctx context.Context, localPath string, host string, remotePath string) error {
 	str := fmt.Sprintf("scp -r %s root@%s:%s", localPath, host, remotePath)
-	_, err := exec(ctx, str)
+	_, err := command(ctx, str)
 	if err != nil {
 		return err
 	}
