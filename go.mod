@@ -8,3 +8,8 @@ require (
 	github.com/pkg/errors v0.9.1
 	golang.org/x/crypto v0.36.0
 )
+
+require (
+	github.com/spf13/cast v1.9.2 // indirect
+	github.com/xneogo/matrix v0.0.0-20250703031223-ad17d6e0085a // indirect
+)
