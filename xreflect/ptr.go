@@ -75,3 +75,12 @@ func MultiToPtr[elem any](from []elem) func() (to []*elem) {
 		return to
 	}
 }
+
+func ToPtrSafe[elem any](from elem, defaultV elem) func() (to *elem) {
+	return func() (to *elem) {
+		if from == nil {
+			return &defaultV
+		}
+		return &from
+	}
+}
