@@ -20,7 +20,7 @@
  @Description: xother xother/command.go
 */
 
-package xother
+package xshell
 
 import (
 	"context"

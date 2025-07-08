@@ -3,7 +3,7 @@
  @Description: sh.go
 */
 
-package xother
+package xshell
 
 import (
 	"fmt"
@@ -84,3 +84,5 @@ func RunShWithScanner(_ string, name string, args ...string) error {
 	}
 	return nil
 }
+
+// TODO RunPipe
