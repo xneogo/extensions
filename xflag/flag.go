@@ -24,3 +24,15 @@ func (i *ArrayStringFlags) Set(value string) error {
 	}
 	return nil
 }
+
+type namedArgs struct {
+	arg  interface{}
+	name string
+}
+
+func Named(name string, arg interface{}) interface{} {
+	return namedArgs{
+		arg:  arg,
+		name: name,
+	}
+}
